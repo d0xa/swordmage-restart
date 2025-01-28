@@ -8,6 +8,7 @@ import 'package:SwordMageRestart/game_internals/health_bar.dart';
 import 'package:SwordMageRestart/game_internals/mob.dart';
 import 'package:SwordMageRestart/game_internals/player.dart';
 import 'package:SwordMageRestart/play_session/end_turn_button.dart';
+import 'package:SwordMageRestart/play_session/mob_hand_widget.dart';
 import 'package:SwordMageRestart/play_session/player_hand_widget.dart';
 import 'package:SwordMageRestart/play_session/stamina_widget.dart';
 import 'package:flutter/material.dart';
@@ -48,8 +49,6 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   late DateTime _startOfPlay;
 
   late final BoardState _boardState;
-  late final Player _player;
-  late final List<Mob> _mobs;
   final ValueNotifier<Mob?> _selectedMob = ValueNotifier<Mob?>(null);
 
   @override
@@ -57,76 +56,11 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     super.initState();
     _startOfPlay = DateTime.now();
     _boardState = BoardState(onWin: _playerWon);
-    // _player = Player(health: 10, speed: 10, initialStamina: 10);
-    // _mobs = List.generate(
-    //     3,
-    //     (index) =>
-    //         Mob(health: 3, speed: 5, initialStamina: 10, mobType: 'Goblin'));
   }
 
   @override
-  // Widget build(BuildContext context) {
-  //   final palette = context.watch<Palette>();
-
-  //   return MultiProvider(
-  //     providers: [
-  //       ChangeNotifierProvider.value(value: _boardState),
-  //       ChangeNotifierProvider.value(value: _boardState.player),
-  //       ChangeNotifierProvider.value(value: _selectedMob),
-  //       Provider<List<Mob>>.value(
-  //           value: _boardState.mobs), // Ensure List<Mob> provider is added
-  //       ..._boardState.mobs
-  //           .map((mob) => ChangeNotifierProvider.value(value: mob)),
-  //     ],
-  //     child: IgnorePointer(
-  //       ignoring: _duringCelebration,
-  //       child: Scaffold(
-  //         backgroundColor: palette.backgroundPlaySession,
-  //         body: Stack(
-  //           children: [
-  //             Column(
-  //               mainAxisAlignment: MainAxisAlignment.center,
-  //               children: [
-  //                 Align(
-  //                   alignment: Alignment.centerRight,
-  //                   child: InkResponse(
-  //                     onTap: () => GoRouter.of(context).push('/settings'),
-  //                     child: Image.asset(
-  //                       'assets/images/settings.png',
-  //                       semanticLabel: 'Settings',
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 // const Spacer(),
-  //                 Expanded(
-  //                   child: const BoardWidget(),
-  //                 ),
-  //                 const StaminaWidget(),
-  //                 const Spacer(),
-  //                 const Text('Drag cards to the two areas above.'),
-  //                 const Spacer(),
-  //                 const EndTurnButton(),
-  //               ],
-  //             ),
-  //             SizedBox.expand(
-  //               child: Visibility(
-  //                 visible: _duringCelebration,
-  //                 child: IgnorePointer(
-  //                   child: Confetti(
-  //                     isStopped: !_duringCelebration,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _boardState),
@@ -155,20 +89,40 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                       ),
                     ),
                   ),
+                  Consumer<BoardState>(
+                    builder: (context, boardState, child) {
+                      return Column(
+                        children: boardState.mobs.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          Mob mob = entry.value;
+                          if (mob.isTurn) {
+                            // return MobHandWidget(mob: mob);
+                            return PlayerHandWidget();
+                            // print("${mob.name}'s turn");
+                            // return Text("${mob.name}'s turn");
+                          }
+                          return Container();
+                        }).toList(),
+                      );
+                    },
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      HealthBar(
-                        name: _boardState.player.isTurn
-                            ? "*${_boardState.player.name}"
-                            : _boardState.player.name,
-                        health: _boardState.player.health,
-                        maxHealth: 10,
-                        color: Colors.green,
+                      Consumer<BoardState>(
+                        builder: (context, boardState, child) {
+                          return HealthBar(
+                            name: boardState.player.isTurn
+                                ? "*${boardState.player.name}"
+                                : boardState.player.name,
+                            health: boardState.player.health,
+                            maxHealth: 10,
+                            color: Colors.green,
+                          );
+                        },
                       ),
                       Expanded(
-                        child: Container(
-                          // scrollDirection: Axis.horizontal,
+                        child: SingleChildScrollView(
                           child: Column(
                             children:
                                 _boardState.mobs.asMap().entries.map((entry) {
@@ -188,18 +142,19 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                                         }
                                       }
                                     },
-                                    child: AnimatedContainer(
-                                      duration: Duration(milliseconds: 300),
-                                      child: HealthBar(
-                                        name: mob.isTurn
-                                            ? "*${mob.name} ${index + 1}"
-                                            : "${mob.name} ${index + 1}",
-                                        health: mob.health,
-                                        maxHealth: 3,
-                                        color: selectedMob == mob
-                                            ? Colors.green
-                                            : Colors.red,
-                                      ),
+                                    child: Consumer<BoardState>(
+                                      builder: (context, boardState, child) {
+                                        return HealthBar(
+                                          name: mob.isTurn
+                                              ? "*${mob.name}"
+                                              : mob.name,
+                                          health: mob.health,
+                                          maxHealth: 3,
+                                          color: selectedMob == mob
+                                              ? Colors.green
+                                              : Colors.red,
+                                        );
+                                      },
                                     ),
                                   );
                                 },
@@ -212,10 +167,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                   ),
                   Expanded(
                     flex: 6, // 60% of the screen height
-                    child: BoardWidget(
-                        // areaOne: _boardState.areaOne,
-                        // areaTwo: _boardState.areaTwo,
-                        ),
+                    child: BoardWidget(),
                   ),
                   const SizedBox(height: 10),
                   const SizedBox(height: 20),
@@ -241,6 +193,129 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
         ),
       ),
     );
+    // return MultiProvider(
+    //   providers: [
+    //     ChangeNotifierProvider.value(value: _boardState),
+    //     ChangeNotifierProvider.value(value: _boardState.player),
+    //     ChangeNotifierProvider.value(value: _selectedMob),
+    //     Provider<List<Mob>>.value(value: _boardState.mobs),
+    //     ..._boardState.mobs
+    //         .map((mob) => ChangeNotifierProvider.value(value: mob)),
+    //   ],
+    //   child: IgnorePointer(
+    //     ignoring: _duringCelebration,
+    //     child: Scaffold(
+    //       backgroundColor: palette.backgroundPlaySession,
+    //       body: Stack(
+    //         children: [
+    //           Column(
+    //             mainAxisAlignment: MainAxisAlignment.center,
+    //             children: [
+    //               Align(
+    //                 alignment: Alignment.centerRight,
+    //                 child: InkResponse(
+    //                   onTap: () => GoRouter.of(context).push('/settings'),
+    //                   child: Image.asset(
+    //                     'assets/images/settings.png',
+    //                     semanticLabel: 'Settings',
+    //                   ),
+    //                 ),
+    //               ),
+    //               ValueListenableBuilder<Mob?>(
+    //                 valueListenable: _selectedMob,
+    //                 builder: (context, selectedMob, child) {
+    //                   if (selectedMob != null && selectedMob.isTurn) {
+    //                     return MobHandWidget(mob: selectedMob);
+    //                   }
+    //                   return Container();
+    //                 },
+    //               ),
+    //               Row(
+    //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                 children: [
+    //                   HealthBar(
+    //                     name: _boardState.player.isTurn
+    //                         ? "*${_boardState.player.name}"
+    //                         : _boardState.player.name,
+    //                     health: _boardState.player.health,
+    //                     maxHealth: 10,
+    //                     color: Colors.green,
+    //                   ),
+    //                   Expanded(
+    //                     child: Container(
+    //                       // scrollDirection: Axis.horizontal,
+    //                       child: Column(
+    //                         children:
+    //                             _boardState.mobs.asMap().entries.map((entry) {
+    //                           int index = entry.key;
+    //                           Mob mob = entry.value;
+    //                           return ValueListenableBuilder<Mob?>(
+    //                             valueListenable: _selectedMob,
+    //                             builder: (context, selectedMob, child) {
+    //                               return GestureDetector(
+    //                                 onTap: () {
+    //                                   if (selectedMob!.isTurn) {
+    //                                     _selectedMob.value =
+    //                                         selectedMob == mob ? null : mob;
+    //                                     if (_selectedMob.value != null) {
+    //                                       _boardState.applyDamageToSelectedMob(
+    //                                           _selectedMob.value);
+    //                                     }
+    //                                   }
+    //                                 },
+    //                                 child: AnimatedContainer(
+    //                                   duration: Duration(milliseconds: 300),
+    //                                   child: HealthBar(
+    //                                     name: mob.isTurn
+    //                                         ? "*${mob.name} ${index + 1}"
+    //                                         : "${mob.name} ${index + 1}",
+    //                                     health: mob.health,
+    //                                     maxHealth: 3,
+    //                                     color: selectedMob == mob
+    //                                         ? Colors.green
+    //                                         : Colors.red,
+    //                                   ),
+    //                                 ),
+    //                               );
+    //                             },
+    //                           );
+    //                         }).toList(),
+    //                       ),
+    //                     ),
+    //                   ),
+    //                 ],
+    //               ),
+    //               Expanded(
+    //                 flex: 6, // 60% of the screen height
+    //                 child: BoardWidget(
+    //                     // areaOne: _boardState.areaOne,
+    //                     // areaTwo: _boardState.areaTwo,
+    //                     ),
+    //               ),
+    //               const SizedBox(height: 10),
+    //               const SizedBox(height: 20),
+    //               const StaminaWidget(),
+    //               const SizedBox(height: 10),
+    //               const PlayerHandWidget(),
+    //               const SizedBox(height: 10),
+    //               const EndTurnButton(),
+    //             ],
+    //           ),
+    //           SizedBox.expand(
+    //             child: Visibility(
+    //               visible: _duringCelebration,
+    //               child: IgnorePointer(
+    //                 child: Confetti(
+    //                   isStopped: !_duringCelebration,
+    //                 ),
+    //               ),
+    //             ),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   @override

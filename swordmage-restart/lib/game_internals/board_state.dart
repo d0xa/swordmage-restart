@@ -82,9 +82,10 @@ class BoardState extends ChangeNotifier {
     final currentTurnEntity = getCurrentTurnEntity();
     if (currentTurnEntity is Player) {
       _handlePlayerTurnEnd(currentTurnEntity);
+      // print('Player turn ended');
     } else if (currentTurnEntity is Mob) {
       currentTurnEntity.playTurn();
-      // _handleMobTurnEnd(currentTurnEntity as List<Mob>);
+      // print('Mob turn ended');
     }
     currentTurnEntity.isTurn = false;
     currentTurnIndex = (currentTurnIndex + 1) % allEntities.length;
