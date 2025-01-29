@@ -78,6 +78,7 @@ class _PlayingAreaWidgetState extends State<PlayingAreaWidget> {
   void _onDragAccept(DragTargetDetails<PlayingCardDragData> details) {
     print(details);
     final stamina = context.read<Stamina>();
+    
     if (stamina.stamina >= details.data.card.value) {
       widget.area.acceptCard(details.data.card);
       details.data.holder.removeCard(details.data.card);
