@@ -116,7 +116,7 @@ class PlayingCardWidget extends StatelessWidget {
 class PlayingCardDragData {
   final PlayingCard card;
 
-  final dynamic holder;
+  final Player holder;
 
   const PlayingCardDragData(this.card, this.holder);
 }

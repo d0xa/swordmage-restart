@@ -82,9 +82,12 @@ class BoardState extends ChangeNotifier {
     final currentTurnEntity = getCurrentTurnEntity();
     if (currentTurnEntity is Player) {
       _handlePlayerTurnEnd(currentTurnEntity);
+      // currentTurnEntity.stamina.increase(2);
+      print(currentTurnEntity.stamina.stamina);
       // print('Player turn ended');
     } else if (currentTurnEntity is Mob) {
       currentTurnEntity.playTurn();
+      _handleMobTurnEnd(currentTurnEntity);
       // print('Mob turn ended');
     }
     currentTurnEntity.isTurn = false;
@@ -102,15 +105,14 @@ class BoardState extends ChangeNotifier {
     player.isTurn = false;
   }
 
-  void _handleMobTurnEnd(List<Mob> mobs) {
-    for (var mob in mobs) {
-      mob.stamina.increase(2);
-      mob.hand.clear();
-      for (int i = 0; i < Player.maxCards; i++) {
-        mob.drawCard(PlayingCard.random());
-      }
-      mob.isTurn = false;
+  void _handleMobTurnEnd(Mob mob) {
+    // for (var mob in mobs) {
+    mob.stamina.increase(2);
+    mob.hand.clear();
+    for (int i = 0; i < 3; i++) {
+      mob.drawCard(PlayingCard.random());
     }
+    mob.isTurn = false;
   }
 
   void _setTurnForCurrentEntity() {

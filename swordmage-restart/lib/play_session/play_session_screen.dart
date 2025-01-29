@@ -66,6 +66,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
         ChangeNotifierProvider.value(value: _boardState),
         ChangeNotifierProvider.value(value: _boardState.player),
         ChangeNotifierProvider.value(value: _selectedMob),
+        ChangeNotifierProvider(create: (_) => _boardState.player.stamina),
         Provider<List<Mob>>.value(value: _boardState.mobs),
         ..._boardState.mobs
             .map((mob) => ChangeNotifierProvider.value(value: mob)),
@@ -92,14 +93,13 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                   Consumer<BoardState>(
                     builder: (context, boardState, child) {
                       return Column(
-                        children: boardState.mobs.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          Mob mob = entry.value;
+                        children: _boardState.mobs.map((mob) {
                           if (mob.isTurn) {
-                            // return MobHandWidget(mob: mob);
-                            return PlayerHandWidget();
-                            // print("${mob.name}'s turn");
-                            // return Text("${mob.name}'s turn");
+                            // print("mob ${mob.hand}");
+                            return ChangeNotifierProvider.value(
+                              value: mob,
+                              child: MobHandWidget(),
+                            );
                           }
                           return Container();
                         }).toList(),
@@ -126,7 +126,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                           child: Column(
                             children:
                                 _boardState.mobs.asMap().entries.map((entry) {
-                              int index = entry.key;
+                              // int index = entry.key;`
                               Mob mob = entry.value;
                               return ValueListenableBuilder<Mob?>(
                                 valueListenable: _selectedMob,
@@ -171,7 +171,12 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                   ),
                   const SizedBox(height: 10),
                   const SizedBox(height: 20),
-                  const StaminaWidget(),
+                  // const StaminaWidget(),
+                  Consumer<BoardState>(
+                    builder: (context, boardState, child) {
+                      return StaminaWidget();
+                    },
+                  ),
                   const SizedBox(height: 10),
                   const PlayerHandWidget(),
                   const SizedBox(height: 10),

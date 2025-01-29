@@ -38,6 +38,12 @@ class PlayingArea {
     _playerChanges.add(null);
   }
 
+  // void acceptCard(MobPlayingCard card) {
+  //   cards.add(card);
+  //   _maybeTrim();
+  //   _playerChanges.add(null);
+  // }
+
   void dispose() {
     _remoteChanges.close();
     _playerChanges.close();

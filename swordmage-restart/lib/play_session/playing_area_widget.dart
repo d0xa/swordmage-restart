@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:SwordMageRestart/game_internals/board_state.dart';
+import 'package:SwordMageRestart/game_internals/mob.dart';
 import 'package:SwordMageRestart/game_internals/player.dart';
 import 'package:SwordMageRestart/game_internals/stamina.dart';
 import 'package:flutter/material.dart';
@@ -15,11 +17,13 @@ import 'playing_card_widget.dart';
 class PlayingAreaWidget extends StatefulWidget {
   final PlayingArea area;
   final bool isPlayerArea;
+  final bool isMobArea;
 
   const PlayingAreaWidget({
     super.key,
     required this.area,
     required this.isPlayerArea,
+    required this.isMobArea,
   });
 
   @override
@@ -32,36 +36,23 @@ class _PlayingAreaWidgetState extends State<PlayingAreaWidget> {
   @override
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
+    final boardState = context.watch<BoardState>();
+    final player = boardState.player;
+    // final mob = context.watch<Mob>();
 
-    // return LimitedBox(
-    //   maxHeight: 200,
-    //   child: AspectRatio(
-    //     aspectRatio: 1 / 1,
-    //     child: DragTarget<PlayingCardDragData>(
-    //       builder: (context, candidateData, rejectedData) => Material(
-    //         color: isHighlighted ? palette.accept : palette.trueWhite,
-    //         shape: const CircleBorder(),
-    //         clipBehavior: Clip.hardEdge,
-    //         child: InkWell(
-    //           splashColor: palette.redPen,
-    //           onTap: _onAreaTap,
-    //           child: StreamBuilder(
-    //             // Rebuild the card stack whenever the area changes
-    //             // (either by a player action, or remotely).
-    //             stream: widget.area.allChanges,
-    //             builder: (context, child) => _CardStack(widget.area.cards),
-    //           ),
-    //         ),
-    //       ),
-    //       onWillAcceptWithDetails: _onDragWillAccept,
-    //       onLeave: _onDragLeave,
-    //       onAcceptWithDetails: _onDragAccept,
-    //     ),
-    //   ),
-    // );
     return DragTarget<PlayingCardDragData>(
-      onWillAcceptWithDetails: (data) => widget.isPlayerArea,
-      onAcceptWithDetails: (data) => _onDragAccept(data),
+      onWillAcceptWithDetails: (details) {
+        if (widget.isPlayerArea) {
+          print(details.data.holder);
+          return player.isTurn && details.data.holder is Player;
+        }
+        if (widget.isMobArea) {
+          print(details.data.holder);
+          return !player.isTurn && details.data.holder is Mob;
+        }
+        return false;
+      },
+      onAcceptWithDetails: (details) => _onDragAccept(details),
       onLeave: (data) => _onDragLeave(data),
       builder: (context, candidateData, rejectedData) => Container(
         color: isHighlighted ? palette.accept : palette.trueWhite,
@@ -85,6 +76,7 @@ class _PlayingAreaWidgetState extends State<PlayingAreaWidget> {
   }
 
   void _onDragAccept(DragTargetDetails<PlayingCardDragData> details) {
+    print(details);
     final stamina = context.read<Stamina>();
     if (stamina.stamina >= details.data.card.value) {
       widget.area.acceptCard(details.data.card);

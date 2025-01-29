@@ -27,6 +27,7 @@ class EndTurnButton extends StatelessWidget {
       onPressed: () {
         // Assuming you have a BoardState provider
         final boardState = context.read<BoardState>();
+        selectedMobNotifier.value = null;
         boardState.endTurn();
       },
       child: Text('End Turn'),

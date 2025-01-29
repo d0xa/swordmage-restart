@@ -6,7 +6,8 @@ import 'playing_card.dart';
 import 'stamina.dart';
 
 class Mob extends ChangeNotifier {
-  final List<PlayingCard> hand = [];
+  static const maxCards = 4;
+  // final List<PlayingCard> hand = [];
   final Stamina stamina;
   final int speed;
   int health;
@@ -22,6 +23,11 @@ class Mob extends ChangeNotifier {
     required this.name,
     // this.isTurn = false,
   }) : stamina = Stamina(initialStamina);
+
+  final List<PlayingCard> _hand =
+      List.generate(maxCards, (index) => PlayingCard.random());
+
+  List<PlayingCard> get hand => _hand;
 
   void drawCard(PlayingCard card) {
     hand.add(card);

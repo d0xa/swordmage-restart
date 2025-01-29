@@ -1,3 +1,4 @@
+import 'package:SwordMageRestart/game_internals/mob.dart';
 import 'package:SwordMageRestart/game_internals/stamina.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +10,7 @@ import '../game_internals/player.dart';
 import '../game_internals/playing_card.dart';
 import '../style/palette.dart';
 
-class PlayingCardWidget extends StatelessWidget {
+class MobPlayingCardWidget extends StatelessWidget {
   // A standard playing card is 57.1mm x 88.9mm.
   // static const double width = 57.1;
   static const double width = 90;
@@ -18,9 +19,9 @@ class PlayingCardWidget extends StatelessWidget {
 
   final PlayingCard card;
 
-  final Player? player;
+  final Mob? mob;
 
-  const PlayingCardWidget(this.card, {this.player, super.key});
+  const MobPlayingCardWidget(this.card, {this.mob, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,59 +54,66 @@ class PlayingCardWidget extends StatelessWidget {
     );
 
     /// Cards that aren't in a player's hand are not draggable.
-    if (player == null) return cardWidget;
+    if (mob == null) return cardWidget;
 
     return Draggable(
       feedback: Transform.rotate(
         angle: 0.1,
         child: cardWidget,
       ),
-      data: PlayingCardDragData(card, player!),
+      data: PlayingCardDragData(card, mob!),
       childWhenDragging: Opacity(
         opacity: 0.5,
         child: cardWidget,
       ),
       onDragStarted: () {
-        final stamina = context.read<Stamina>();
-        if (stamina.stamina < card.value) {
-          // Prevent dragging if stamina is insufficient
-          return;
-        }
+        // Commented out stamina check
+        // final stamina = context.read<Stamina>();
+        // if (stamina.stamina < card.value) {
+        //   // Prevent dragging if stamina is insufficient
+        //   return;
+        // }
         final audioController = context.read<AudioController>();
         audioController.playSfx(SfxType.huhsh);
       },
       onDragEnd: (details) {
-        final stamina = context.read<Stamina>();
-        if (stamina.stamina >= card.value) {
-          // Deduct stamina and complete the drag
-          final audioController = context.read<AudioController>();
-          audioController.playSfx(SfxType.wssh);
-          // stamina.decrease(card.value);
-          print(card.value);
-        } else {
-          // If stamina is insufficient, snap the card back to its original position
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Not enough stamina to play this card!'),
-              duration: Duration(seconds: 1),
-            ),
-          );
-        }
+        // Commented out stamina check
+        // final stamina = context.read<Stamina>();
+        // if (stamina.stamina >= card.value) {
+        //   // Deduct stamina and complete the drag
+        //   final audioController = context.read<AudioController>();
+        //   audioController.playSfx(SfxType.wssh);
+        //   // stamina.decrease(card.value);
+        //   // print(card.value);
+        // } else {
+        //   // If stamina is insufficient, snap the card back to its original position
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(
+        //       content: Text('Not enough stamina to play this card!'),
+        //       duration: Duration(seconds: 1),
+        //     ),
+        //   );
+        // }
+        final audioController = context.read<AudioController>();
+        audioController.playSfx(SfxType.wssh);
       },
       onDraggableCanceled: (velocity, offset) {
+        // Commented out stamina check
         // Handle snapping back the card if the drag is canceled
-        final stamina = context.read<Stamina>();
-        if (stamina.stamina < card.value) {
-          // Play a sound or show a message indicating insufficient stamina
-          final audioController = context.read<AudioController>();
-          audioController.playSfx(SfxType.huhsh);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Not enough stamina to play this card!'),
-              duration: Duration(seconds: 1),
-            ),
-          );
-        }
+        // final stamina = context.read<Stamina>();
+        // if (stamina.stamina < card.value) {
+        //   // Play a sound or show a message indicating insufficient stamina
+        //   final audioController = context.read<AudioController>();
+        //   audioController.playSfx(SfxType.huhsh);
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(
+        //       content: Text('Not enough stamina to play this card!'),
+        //       duration: Duration(seconds: 1),
+        //     ),
+        //   );
+        // }
+        final audioController = context.read<AudioController>();
+        audioController.playSfx(SfxType.huhsh);
       },
       child: cardWidget,
     );

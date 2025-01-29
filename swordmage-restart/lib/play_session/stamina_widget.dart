@@ -7,20 +7,22 @@ class StaminaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Stamina>(
-      builder: (context, stamina, child) {
-        return Column(
-          children: [
-            Text('Stamina: ${stamina.stamina}'),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     stamina.decrease(1); // Decrease stamina by 1 for demonstration
-            //   },
-            //   child: Text('Use Card'),
-            // ),
-          ],
-        );
-      },
+    final stamina = context.read<Stamina>();
+
+    // return Consumer<Stamina>(
+    //   builder: (context, stamina, child) {
+    return Column(
+      children: [
+        Text('Stamina: ${stamina.stamina}',
+            style: TextStyle(color: Colors.blue)),
+        LinearProgressIndicator(
+          value: stamina.stamina / 10, // Assuming max stamina is 10
+          backgroundColor: Colors.grey,
+          color: Colors.blue,
+        ),
+      ],
     );
   }
+  // );
 }
+// }
