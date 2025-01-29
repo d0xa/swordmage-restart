@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
-import 'card_suit.dart';
-
 @immutable
 class PlayingCard {
   static final _random = Random();
@@ -12,8 +10,9 @@ class PlayingCard {
   final int value;
   final int attack;
   final String imagePath;
+  final String description;
 
-  const PlayingCard(this.attack, this.value, this.imagePath);
+  const PlayingCard(this.attack, this.value, this.imagePath, this.description);
 
   factory PlayingCard.fromJson(Map<String, dynamic> json) {
     return PlayingCard(
@@ -21,6 +20,7 @@ class PlayingCard {
       json['value'] as int,
       json['attack'] as int,
       json['imagePath'] as String,
+      json['description'] as String,
     );
   }
 
@@ -30,9 +30,8 @@ class PlayingCard {
       // CardSuit.hearts,
       1,
       1,
-      // 'assets/images/cards/Slash-1.png',
-      // 'swordmage-restart/assets/images/cards/Slash-1.png',
-      '../assets/images/cards/Slash-1.png',
+      'assets/images/cards/Slash-1.png',
+      'Deal 1 Slash damage',
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:SwordMageRestart/game_internals/custom_tool_tip.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,26 +13,73 @@ class PlayerHandWidget extends StatelessWidget {
     final boardState = context.watch<BoardState>();
 
     return Padding(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(8),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: PlayingCardWidget.height),
+        constraints: BoxConstraints(
+          minHeight: PlayingCardWidget.height,
+          // maxHeight: PlayingCardWidget.height * 2, // Add a max height
+        ),
         child: ListenableBuilder(
-          // Make sure we rebuild every time there's an update
-          // to the player's hand.
           listenable: boardState.player,
           builder: (context, child) {
-            return Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                ...boardState.player.hand.map((card) =>
-                    PlayingCardWidget(card, player: boardState.player)),
-              ],
+            final hand = boardState.player.hand;
+            final cardCount = hand.length;
+            final screenWidth = MediaQuery.of(context).size.width;
+
+            // Calculate the maximum width available for each card
+            // final maxCardWidth = (screenWidth - 20) / cardCount;
+            final maxCardWidth = (screenWidth - 25) / cardCount;
+            final cardWidth =
+                cardCount <= 3 ? PlayingCardWidget.width : maxCardWidth;
+
+            return SizedBox(
+              height: PlayingCardWidget.height * 2, // Ensure finite height
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: hand.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final card = entry.value;
+
+                  // Calculate the angle and offset for the fan layout
+                  final angle = (index - (cardCount - 1) / 2) *
+                      0.05; // Adjust the angle for fan effect
+                  final offset = index *
+                      maxCardWidth *
+                      .98; // Adjust the offset for spacing
+
+                  return Positioned(
+                    bottom: 0,
+                    left: offset,
+                    child: GestureDetector(
+                      // onTap: () => _onHover(context, index, true),
+                      onLongPress: () => _onHover(context, index, true),
+                      child: Transform.rotate(
+                        angle: angle,
+                        alignment: Alignment
+                            .bottomCenter, // Rotate around the bottom center
+                        child: CustomTooltip(
+                          message: card.description,
+                          child: SizedBox(
+                            height: PlayingCardWidget.height * 1.2,
+                            width: cardWidth,
+                            child: PlayingCardWidget(card,
+                                player: boardState.player),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
             );
           },
         ),
       ),
     );
+  }
+
+  void _onHover(BuildContext context, int index, bool isHovered) {
+    final boardState = context.read<BoardState>();
+    boardState.setHoveredCardIndex(isHovered ? index : null);
   }
 }

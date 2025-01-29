@@ -2,14 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:SwordMageRestart/game_internals/health_bar.dart';
-import 'package:SwordMageRestart/game_internals/mob.dart';
-import 'package:SwordMageRestart/game_internals/player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../game_internals/board_state.dart';
-import 'player_hand_widget.dart';
 import 'playing_area_widget.dart';
 
 /// This widget defines the game UI itself, without things like the settings

@@ -7,12 +7,12 @@ class HealthBar extends StatelessWidget {
   final Color color;
 
   const HealthBar({
-    Key? key,
+    super.key,
     required this.name,
     required this.health,
     required this.maxHealth,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -47,6 +47,7 @@ class BoardState extends ChangeNotifier {
 
   List<PlayingArea> get areas => [areaOne, areaTwo];
 
+  @override
   void dispose() {
     player.removeListener(_handlePlayerChange);
     areaOne.dispose();
@@ -118,5 +119,14 @@ class BoardState extends ChangeNotifier {
   void _setTurnForCurrentEntity() {
     final currentTurnEntity = getCurrentTurnEntity();
     currentTurnEntity.isTurn = true;
+  }
+
+  int? _hoveredCardIndex;
+
+  int? get hoveredCardIndex => _hoveredCardIndex;
+
+  void setHoveredCardIndex(int? index) {
+    _hoveredCardIndex = index;
+    notifyListeners();
   }
 }

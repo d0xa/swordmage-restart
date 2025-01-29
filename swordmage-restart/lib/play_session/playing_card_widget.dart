@@ -11,10 +11,8 @@ import '../style/palette.dart';
 
 class PlayingCardWidget extends StatelessWidget {
   // A standard playing card is 57.1mm x 88.9mm.
-  // static const double width = 57.1;
-  static const double width = 90;
-  static const double height = 130;
-  // static const double height = 88.9;
+  static const double width = 100;
+  static const double height = 110;
 
   final PlayingCard card;
 
@@ -28,6 +26,29 @@ class PlayingCardWidget extends StatelessWidget {
     final textColor = palette.ink;
     // card.suit.color == CardSuitColor.red ? palette.redPen : palette.ink;
 
+    // final cardWidget = DefaultTextStyle(
+    //   style: Theme.of(context).textTheme.bodyMedium!.apply(color: textColor),
+    //   child: Container(
+    //     width: width,
+    //     height: height,
+    //     decoration: BoxDecoration(
+    //       color: palette.trueWhite,
+    //       border: Border.all(color: palette.ink),
+    //       borderRadius: BorderRadius.circular(5),
+    //     ),
+    //     child: Center(
+    //       child: Column(
+    //         mainAxisAlignment: MainAxisAlignment.center,
+    //         children: [
+    //           Flexible(
+    //             flex: 10,
+    //             child: Image.asset(card.imagePath),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
     final cardWidget = DefaultTextStyle(
       style: Theme.of(context).textTheme.bodyMedium!.apply(color: textColor),
       child: Container(
@@ -37,16 +58,9 @@ class PlayingCardWidget extends StatelessWidget {
           color: palette.trueWhite,
           border: Border.all(color: palette.ink),
           borderRadius: BorderRadius.circular(5),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(card.imagePath
-                  // , width: 40, height: 40
-                  ),
-              // Text('${card.value}', textAlign: TextAlign.center),
-            ],
+          image: DecorationImage(
+            image: AssetImage(card.imagePath),
+            fit: BoxFit.cover,
           ),
         ),
       ),

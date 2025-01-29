@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'playing_card.dart';
 
 class Player extends ChangeNotifier {
-  static const maxCards = 7;
+  static const maxCards = 6;
   final Stamina stamina;
   final int speed;
   int health;

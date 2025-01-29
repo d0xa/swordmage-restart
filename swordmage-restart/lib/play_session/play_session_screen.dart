@@ -6,7 +6,6 @@ import 'dart:async';
 
 import 'package:SwordMageRestart/game_internals/health_bar.dart';
 import 'package:SwordMageRestart/game_internals/mob.dart';
-import 'package:SwordMageRestart/game_internals/player.dart';
 import 'package:SwordMageRestart/play_session/end_turn_button.dart';
 import 'package:SwordMageRestart/play_session/mob_hand_widget.dart';
 import 'package:SwordMageRestart/play_session/player_hand_widget.dart';
@@ -21,7 +20,6 @@ import '../audio/sounds.dart';
 import '../game_internals/board_state.dart';
 import '../game_internals/score.dart';
 import '../style/confetti.dart';
-import '../style/my_button.dart';
 import '../style/palette.dart';
 import 'board_widget.dart';
 
@@ -78,7 +76,6 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
           body: Stack(
             children: [
               Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Align(
                     alignment: Alignment.centerRight,
@@ -92,18 +89,14 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                   ),
                   Consumer<BoardState>(
                     builder: (context, boardState, child) {
-                      return Column(
-                        children: _boardState.mobs.map((mob) {
-                          if (mob.isTurn) {
-                            // print("mob ${mob.hand}");
-                            return ChangeNotifierProvider.value(
-                              value: mob,
+                      return boardState.mobs.any((mob) => mob.isTurn)
+                          ? Positioned(
+                              top: -20,
+                              left: 0,
+                              right: 0,
                               child: MobHandWidget(),
-                            );
-                          }
-                          return Container();
-                        }).toList(),
-                      );
+                            )
+                          : Container();
                     },
                   ),
                   Row(
@@ -126,7 +119,6 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                           child: Column(
                             children:
                                 _boardState.mobs.asMap().entries.map((entry) {
-                              // int index = entry.key;`
                               Mob mob = entry.value;
                               return ValueListenableBuilder<Mob?>(
                                 valueListenable: _selectedMob,
@@ -171,16 +163,25 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                   ),
                   const SizedBox(height: 10),
                   const SizedBox(height: 20),
-                  // const StaminaWidget(),
-                  Consumer<BoardState>(
-                    builder: (context, boardState, child) {
-                      return StaminaWidget();
-                    },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Consumer<BoardState>(
+                          builder: (context, boardState, child) {
+                            return StaminaWidget();
+                          },
+                        ),
+                      ),
+                      const EndTurnButton(),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  const PlayerHandWidget(),
-                  const SizedBox(height: 10),
-                  const EndTurnButton(),
+                  Expanded(
+                    flex: 4, // 60% of the screen height
+
+                    child: const PlayerHandWidget(),
+                  ),
+                  // const PlayerHandWidget(),
                 ],
               ),
               SizedBox.expand(
@@ -203,6 +204,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     //     ChangeNotifierProvider.value(value: _boardState),
     //     ChangeNotifierProvider.value(value: _boardState.player),
     //     ChangeNotifierProvider.value(value: _selectedMob),
+    //     ChangeNotifierProvider(create: (_) => _boardState.player.stamina),
     //     Provider<List<Mob>>.value(value: _boardState.mobs),
     //     ..._boardState.mobs
     //         .map((mob) => ChangeNotifierProvider.value(value: mob)),
@@ -226,40 +228,48 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     //                   ),
     //                 ),
     //               ),
-    //               ValueListenableBuilder<Mob?>(
-    //                 valueListenable: _selectedMob,
-    //                 builder: (context, selectedMob, child) {
-    //                   if (selectedMob != null && selectedMob.isTurn) {
-    //                     return MobHandWidget(mob: selectedMob);
-    //                   }
-    //                   return Container();
+    //               Consumer<BoardState>(
+    //                 builder: (context, boardState, child) {
+    //                   return Column(
+    //                     children: _boardState.mobs.map((mob) {
+    //                       if (mob.isTurn) {
+    //                         return ChangeNotifierProvider.value(
+    //                           value: mob,
+    //                           child: MobHandWidget(),
+    //                         );
+    //                       }
+    //                       return Container();
+    //                     }).toList(),
+    //                   );
     //                 },
     //               ),
     //               Row(
     //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
     //                 children: [
-    //                   HealthBar(
-    //                     name: _boardState.player.isTurn
-    //                         ? "*${_boardState.player.name}"
-    //                         : _boardState.player.name,
-    //                     health: _boardState.player.health,
-    //                     maxHealth: 10,
-    //                     color: Colors.green,
+    //                   Consumer<BoardState>(
+    //                     builder: (context, boardState, child) {
+    //                       return HealthBar(
+    //                         name: boardState.player.isTurn
+    //                             ? "*${boardState.player.name}"
+    //                             : boardState.player.name,
+    //                         health: boardState.player.health,
+    //                         maxHealth: 10,
+    //                         color: Colors.green,
+    //                       );
+    //                     },
     //                   ),
     //                   Expanded(
-    //                     child: Container(
-    //                       // scrollDirection: Axis.horizontal,
+    //                     child: SingleChildScrollView(
     //                       child: Column(
     //                         children:
     //                             _boardState.mobs.asMap().entries.map((entry) {
-    //                           int index = entry.key;
     //                           Mob mob = entry.value;
     //                           return ValueListenableBuilder<Mob?>(
     //                             valueListenable: _selectedMob,
     //                             builder: (context, selectedMob, child) {
     //                               return GestureDetector(
     //                                 onTap: () {
-    //                                   if (selectedMob!.isTurn) {
+    //                                   if (_boardState.player.isTurn) {
     //                                     _selectedMob.value =
     //                                         selectedMob == mob ? null : mob;
     //                                     if (_selectedMob.value != null) {
@@ -268,18 +278,19 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     //                                     }
     //                                   }
     //                                 },
-    //                                 child: AnimatedContainer(
-    //                                   duration: Duration(milliseconds: 300),
-    //                                   child: HealthBar(
-    //                                     name: mob.isTurn
-    //                                         ? "*${mob.name} ${index + 1}"
-    //                                         : "${mob.name} ${index + 1}",
-    //                                     health: mob.health,
-    //                                     maxHealth: 3,
-    //                                     color: selectedMob == mob
-    //                                         ? Colors.green
-    //                                         : Colors.red,
-    //                                   ),
+    //                                 child: Consumer<BoardState>(
+    //                                   builder: (context, boardState, child) {
+    //                                     return HealthBar(
+    //                                       name: mob.isTurn
+    //                                           ? "*${mob.name}"
+    //                                           : mob.name,
+    //                                       health: mob.health,
+    //                                       maxHealth: 3,
+    //                                       color: selectedMob == mob
+    //                                           ? Colors.green
+    //                                           : Colors.red,
+    //                                     );
+    //                                   },
     //                                 ),
     //                               );
     //                             },
@@ -292,18 +303,19 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     //               ),
     //               Expanded(
     //                 flex: 6, // 60% of the screen height
-    //                 child: BoardWidget(
-    //                     // areaOne: _boardState.areaOne,
-    //                     // areaTwo: _boardState.areaTwo,
-    //                     ),
+    //                 child: BoardWidget(),
     //               ),
     //               const SizedBox(height: 10),
     //               const SizedBox(height: 20),
-    //               const StaminaWidget(),
-    //               const SizedBox(height: 10),
-    //               const PlayerHandWidget(),
+    //               Consumer<BoardState>(
+    //                 builder: (context, boardState, child) {
+    //                   return StaminaWidget();
+    //                 },
+    //               ),
     //               const SizedBox(height: 10),
     //               const EndTurnButton(),
+    //               const SizedBox(height: 10),
+    //               const PlayerHandWidget(),
     //             ],
     //           ),
     //           SizedBox.expand(
