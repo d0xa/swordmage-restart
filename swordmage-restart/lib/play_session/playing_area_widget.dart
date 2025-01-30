@@ -2,7 +2,10 @@ import 'dart:math';
 
 import 'package:SwordMageRestart/game_internals/board_state.dart';
 import 'package:SwordMageRestart/game_internals/mob.dart';
+import 'package:SwordMageRestart/game_internals/mob_stamina.dart';
 import 'package:SwordMageRestart/game_internals/player.dart';
+// import 'package:SwordMageRestart/game_internals/player.dart';
+import 'package:SwordMageRestart/game_internals/playing_card_drag_data.dart';
 import 'package:SwordMageRestart/game_internals/stamina.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,21 +40,9 @@ class _PlayingAreaWidgetState extends State<PlayingAreaWidget> {
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
     final boardState = context.watch<BoardState>();
-    final player = boardState.player;
-    // final mob = context.watch<Mob>();
 
     return DragTarget<PlayingCardDragData>(
-      onWillAcceptWithDetails: (details) {
-        if (widget.isPlayerArea) {
-          print(details.data.holder);
-          return player.isTurn && details.data.holder is Player;
-        }
-        if (widget.isMobArea) {
-          print(details.data.holder);
-          return !player.isTurn && details.data.holder is Mob;
-        }
-        return false;
-      },
+      onWillAcceptWithDetails: (details) => _onDragWillAccept(details),
       onAcceptWithDetails: (details) => _onDragAccept(details),
       onLeave: (data) => _onDragLeave(data),
       builder: (context, candidateData, rejectedData) => Container(
@@ -70,30 +61,38 @@ class _PlayingAreaWidgetState extends State<PlayingAreaWidget> {
 
   void _onAreaTap() {
     widget.area.removeFirstCard();
-
     final audioController = context.read<AudioController>();
     audioController.playSfx(SfxType.huhsh);
   }
 
   void _onDragAccept(DragTargetDetails<PlayingCardDragData> details) {
-    print(details);
-    final stamina = context.read<Stamina>();
-    
-    if (stamina.stamina >= details.data.card.value) {
-      widget.area.acceptCard(details.data.card);
-      details.data.holder.removeCard(details.data.card);
-      stamina.decrease(details.data.card.value);
-    } else {
-      // If stamina is insufficient, snap the card back to its original position
-      final audioController = context.read<AudioController>();
-      audioController.playSfx(SfxType.huhsh);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Not enough stamina to play this card!'),
-          duration: Duration(seconds: 1),
-        ),
-      );
+    final holder = details.data.holder;
+    final card = details.data.card;
+
+    if (widget.isPlayerArea && holder is Player) {
+      // final stamina = context.read<Stamina>();
+      if (holder.stamina.stamina >= card.value) {
+        widget.area.acceptCard(card);
+        holder.removeCard(card);
+        holder.stamina.decrease(card.value);
+      } else {
+        _showInsufficientStaminaMessage();
+      }
+    } else if (widget.isMobArea && holder is Mob) {
+      if (holder.stamina.stamina >= card.value) {
+        // final mob = context.read<Mob>();
+        // print(card.value);
+        widget.area.acceptCard(card);
+        holder.removeCard(card);
+        // if (mob.isTurn) {
+        holder.stamina.decrease(card.value);
+        // }
+        // holder.notifyListeners();
+      } else {
+        _showInsufficientStaminaMessage();
+      }
     }
+
     setState(() => isHighlighted = false);
   }
 
@@ -102,8 +101,34 @@ class _PlayingAreaWidgetState extends State<PlayingAreaWidget> {
   }
 
   bool _onDragWillAccept(DragTargetDetails<PlayingCardDragData> details) {
-    setState(() => isHighlighted = true);
-    return true;
+    final holder = details.data.holder;
+    final card = details.data.card;
+
+    if (widget.isPlayerArea && holder is Player) {
+      final stamina = context.read<Stamina>();
+      if (holder.isTurn && stamina.stamina >= card.value) {
+        setState(() => isHighlighted = true);
+        return true;
+      }
+    } else if (widget.isMobArea && holder is Mob) {
+      if (holder.isTurn && holder.stamina.stamina >= card.value) {
+        setState(() => isHighlighted = true);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  void _showInsufficientStaminaMessage() {
+    final audioController = context.read<AudioController>();
+    audioController.playSfx(SfxType.huhsh);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Not enough stamina to play this card!'),
+        duration: Duration(seconds: 1),
+      ),
+    );
   }
 }
 

@@ -14,11 +14,11 @@ class StaminaWidget extends StatelessWidget {
     return Column(
       children: [
         Text('Stamina: ${stamina.stamina}',
-            style: TextStyle(color: Colors.blue)),
+            style: TextStyle(color: Colors.orange)),
         LinearProgressIndicator(
           value: stamina.stamina / 10, // Assuming max stamina is 10
           backgroundColor: Colors.grey,
-          color: Colors.blue,
+          color: Colors.orange,
         ),
       ],
     );

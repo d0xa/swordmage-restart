@@ -1,5 +1,6 @@
 import 'package:SwordMageRestart/game_internals/board_state.dart';
 import 'package:SwordMageRestart/game_internals/playing_card.dart';
+import 'package:SwordMageRestart/play_session/turn_change_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,59 +25,19 @@ class EndTurnButton extends StatelessWidget {
     final currentTurnEntity = allEntities.first;
 
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         // Assuming you have a BoardState provider
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const TurnChangeDialog(color: Colors.orange);
+          },
+        );
         final boardState = context.read<BoardState>();
         selectedMobNotifier.value = null;
-        boardState.endTurn();
+        boardState.endTurn(context);
       },
       child: Text('End Turn'),
     );
-    // return ElevatedButton(
-    //   onPressed: () {
-    //     if (currentTurnEntity is Player) {
-    //       // Player's turn logic
-    //       // Implement player turn logic here
-    //       (currentTurnEntity).isTurn = true;
-    //       _handlePlayerTurnEnd(currentTurnEntity);
-    //     } else if (currentTurnEntity is Mob) {
-    //       // Mob's turn logic
-    //       // Implement mob turn logic here
-    //     }
-    //     // Switch turn to the next entity
-    //     (currentTurnEntity as Mob).isTurn = true;
-    //     (currentTurnEntity).playTurn();
-    //     _handleMobTurnEnd(mobs);
-    //     allEntities.add(allEntities.removeAt(0));
-    //     selectedMobNotifier.value = null; //Deselect mob
-
-    //     // Update turn logic
-    //   },
-    //   child: Text('End Turn'),
-    // );
-  }
-
-  void _handlePlayerTurnEnd(Player player) {
-    // Restore stamina by 2 points
-    player.stamina.increase(2);
-
-    // Draw cards equal to the ones used
-    final cardsUsed = Player.maxCards - player.hand.length;
-    for (int i = 0; i < cardsUsed; i++) {
-      player.drawCard(PlayingCard.random());
-    }
-    player.isTurn = false;
-  }
-
-  void _handleMobTurnEnd(List<Mob> mobs) {
-    for (var mob in mobs) {
-      // Give a brand new hand to each mob
-      mob.stamina.increase(2);
-      mob.hand.clear();
-      for (int i = 0; i < Player.maxCards; i++) {
-        mob.drawCard(PlayingCard.random());
-      }
-      mob.isTurn = false;
-    }
   }
 }

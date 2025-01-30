@@ -1,12 +1,13 @@
+import 'package:SwordMageRestart/game_internals/retro_circle.dart';
 import 'package:SwordMageRestart/game_internals/stamina.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
-// import '../game_internals/card_suit.dart';
 import '../game_internals/player.dart';
 import '../game_internals/playing_card.dart';
+import '../game_internals/playing_card_drag_data.dart';
 import '../style/palette.dart';
 
 class PlayingCardWidget extends StatelessWidget {
@@ -15,45 +16,22 @@ class PlayingCardWidget extends StatelessWidget {
   static const double height = 110;
 
   final PlayingCard card;
-
   final Player? player;
+  final bool isGhost;
 
-  const PlayingCardWidget(this.card, {this.player, super.key});
+  const PlayingCardWidget(this.card,
+      {this.player, this.isGhost = false, super.key});
 
   @override
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
     final textColor = palette.ink;
-    // card.suit.color == CardSuitColor.red ? palette.redPen : palette.ink;
 
-    // final cardWidget = DefaultTextStyle(
-    //   style: Theme.of(context).textTheme.bodyMedium!.apply(color: textColor),
-    //   child: Container(
-    //     width: width,
-    //     height: height,
-    //     decoration: BoxDecoration(
-    //       color: palette.trueWhite,
-    //       border: Border.all(color: palette.ink),
-    //       borderRadius: BorderRadius.circular(5),
-    //     ),
-    //     child: Center(
-    //       child: Column(
-    //         mainAxisAlignment: MainAxisAlignment.center,
-    //         children: [
-    //           Flexible(
-    //             flex: 10,
-    //             child: Image.asset(card.imagePath),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   ),
-    // );
     final cardWidget = DefaultTextStyle(
       style: Theme.of(context).textTheme.bodyMedium!.apply(color: textColor),
       child: Container(
-        width: width,
-        height: height,
+        width: isGhost ? width * 1.5 : width,
+        height: isGhost ? height * 1.5 : height,
         decoration: BoxDecoration(
           color: palette.trueWhite,
           border: Border.all(color: palette.ink),
@@ -63,11 +41,32 @@ class PlayingCardWidget extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
+        child: Stack(
+          clipBehavior: Clip.none, // Allow overflow
+          children: [
+            Positioned(
+              bottom: -10, // Position slightly outside the card
+              left: -10, // Position slightly outside the card
+              child: EightBitCircle(
+                value: card.attack,
+                color: Colors.orange,
+              ),
+            ),
+            Positioned(
+              bottom: -10, // Position slightly outside the card
+              right: -10, // Position slightly outside the card
+              child: EightBitCircle(
+                value: card.value,
+                color: Colors.green,
+              ),
+            ),
+          ],
+        ),
       ),
     );
 
     /// Cards that aren't in a player's hand are not draggable.
-    if (player == null) return cardWidget;
+    if (player == null || isGhost) return cardWidget;
 
     return Draggable(
       feedback: Transform.rotate(
@@ -89,6 +88,7 @@ class PlayingCardWidget extends StatelessWidget {
         audioController.playSfx(SfxType.huhsh);
       },
       onDragEnd: (details) {
+        print('Drag ended for player card: ${details}');
         final stamina = context.read<Stamina>();
         if (stamina.stamina >= card.value) {
           // Deduct stamina and complete the drag
@@ -124,13 +124,4 @@ class PlayingCardWidget extends StatelessWidget {
       child: cardWidget,
     );
   }
-}
-
-@immutable
-class PlayingCardDragData {
-  final PlayingCard card;
-
-  final dynamic holder;
-
-  const PlayingCardDragData(this.card, this.holder);
 }

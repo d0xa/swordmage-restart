@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:SwordMageRestart/lose_game/lose_game_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -59,6 +60,14 @@ final router = GoRouter(
               },
             )
           ],
+        ),
+        GoRoute(
+          path: '/lose',
+          builder: (context, state) {
+            // final score = state.extra as Score;
+            // return LoseGameScreen(score: score);
+            return LoseGameScreen();
+          },
         ),
         GoRoute(
           path: 'settings',
