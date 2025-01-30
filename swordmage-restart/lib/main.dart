@@ -4,6 +4,7 @@
 
 import 'dart:developer' as dev;
 
+import 'package:SwordMageRestart/game_internals/player.dart';
 import 'package:SwordMageRestart/game_internals/stamina.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -55,8 +56,17 @@ class MyApp extends StatelessWidget {
         // Every widget in the game can access these objects by calling
         // `context.watch()` or `context.read()`.
         // See `lib/main_menu/main_menu_screen.dart` for example usage.
-
         providers: [
+          ChangeNotifierProvider(
+            create: (_) => Player(
+              name: 'Chacho',
+              health: 6,
+              maxHealth: 6,
+              speed: 10,
+              stamina: 4,
+              maxStamina: 4,
+            ),
+          ),
           Provider(create: (context) => SettingsController()),
           Provider(create: (context) => Palette()),
           ChangeNotifierProvider(create: (context) => PlayerProgress()),

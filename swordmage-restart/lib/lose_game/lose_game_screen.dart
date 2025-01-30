@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:SwordMageRestart/player_progress/player_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +35,7 @@ class LoseGameScreen extends StatelessWidget {
             gap,
             const Center(
               child: Text(
-                'You Loose :(',
+                'You Lose :(',
                 style: TextStyle(fontFamily: 'Permanent Marker', fontSize: 50),
               ),
             ),
@@ -51,6 +52,10 @@ class LoseGameScreen extends StatelessWidget {
         ),
         rectangularMenuArea: MyButton(
           onPressed: () {
+            context.read<PlayerProgress>().reset();
+            final messenger = ScaffoldMessenger.of(context);
+            messenger.showSnackBar(const SnackBar(
+                content: Text('Player progress has been reset.')));
             GoRouter.of(context).go('/');
           },
           child: const Text('Continue'),

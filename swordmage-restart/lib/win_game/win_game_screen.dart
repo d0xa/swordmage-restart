@@ -51,7 +51,7 @@ class WinGameScreen extends StatelessWidget {
         ),
         rectangularMenuArea: MyButton(
           onPressed: () {
-            GoRouter.of(context).go('/');
+            GoRouter.of(context).go('/play');
           },
           child: const Text('Continue'),
         ),

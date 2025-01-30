@@ -5,12 +5,16 @@
 import 'dart:async';
 
 import 'package:SwordMageRestart/game_internals/health_bar.dart';
+import 'package:SwordMageRestart/game_internals/levels/game_levels.dart';
 import 'package:SwordMageRestart/game_internals/mob.dart';
+import 'package:SwordMageRestart/game_internals/player.dart';
 import 'package:SwordMageRestart/play_session/end_turn_button.dart';
+import 'package:SwordMageRestart/play_session/ghost_stamina_widget.dart';
 import 'package:SwordMageRestart/play_session/mob_hand_widget.dart';
 import 'package:SwordMageRestart/play_session/mob_stamina_widget.dart';
 import 'package:SwordMageRestart/play_session/player_hand_widget.dart';
 import 'package:SwordMageRestart/play_session/stamina_widget.dart';
+import 'package:SwordMageRestart/player_progress/player_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart' hide Level;
@@ -30,7 +34,10 @@ import 'board_widget.dart';
 /// It is a stateful widget because it manages some state of its own,
 /// such as whether the game is in a "celebration" state.
 class PlaySessionScreen extends StatefulWidget {
-  const PlaySessionScreen({super.key});
+  final GameLevel levelNumber;
+  final Player player;
+  const PlaySessionScreen(
+      {super.key, required this.levelNumber, required this.player});
 
   @override
   State<PlaySessionScreen> createState() => _PlaySessionScreenState();
@@ -48,13 +55,20 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   late DateTime _startOfPlay;
 
   late final BoardState _boardState;
+  late final GhostStamina _ghostStamina;
   final ValueNotifier<Mob?> _selectedMob = ValueNotifier<Mob?>(null);
 
   @override
   void initState() {
     super.initState();
     _startOfPlay = DateTime.now();
-    _boardState = BoardState(onWin: _playerWon);
+    _boardState = BoardState(
+      level: widget.levelNumber,
+      player: widget.player,
+      onWin: _playerWon,
+    );
+    _ghostStamina =
+        GhostStamina(widget.player.stamina, widget.player.maxStamina);
   }
 
   @override
@@ -65,14 +79,10 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
         ChangeNotifierProvider.value(value: _boardState),
         ChangeNotifierProvider.value(value: _boardState.player),
         ChangeNotifierProvider.value(value: _selectedMob),
-        ChangeNotifierProvider(create: (_) => _boardState.player.stamina),
+        ChangeNotifierProvider.value(value: _ghostStamina),
         Provider<List<Mob>>.value(value: _boardState.mobs),
         ..._boardState.mobs
             .map((mob) => ChangeNotifierProvider.value(value: mob)),
-        // ChangeNotifierProvider(create: (_) => mob),
-        // Provider<List<Mob>>.value(value: _boardState.mobs),
-        // ..._boardState.mobs
-        //     .map((mob) => ChangeNotifierProvider.value(value: mob)),
       ],
       child: IgnorePointer(
         ignoring: _duringCelebration,
@@ -217,140 +227,6 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
         ),
       ),
     );
-    // return MultiProvider(
-    //   providers: [
-    //     ChangeNotifierProvider.value(value: _boardState),
-    //     ChangeNotifierProvider.value(value: _boardState.player),
-    //     ChangeNotifierProvider.value(value: _selectedMob),
-    //     ChangeNotifierProvider(create: (_) => _boardState.player.stamina),
-    //     Provider<List<Mob>>.value(value: _boardState.mobs),
-    //     ..._boardState.mobs
-    //         .map((mob) => ChangeNotifierProvider.value(value: mob)),
-    //   ],
-    //   child: IgnorePointer(
-    //     ignoring: _duringCelebration,
-    //     child: Scaffold(
-    //       backgroundColor: palette.backgroundPlaySession,
-    //       body: Stack(
-    //         children: [
-    //           Column(
-    //             mainAxisAlignment: MainAxisAlignment.center,
-    //             children: [
-    //               Align(
-    //                 alignment: Alignment.centerRight,
-    //                 child: InkResponse(
-    //                   onTap: () => GoRouter.of(context).push('/settings'),
-    //                   child: Image.asset(
-    //                     'assets/images/settings.png',
-    //                     semanticLabel: 'Settings',
-    //                   ),
-    //                 ),
-    //               ),
-    //               Consumer<BoardState>(
-    //                 builder: (context, boardState, child) {
-    //                   return Column(
-    //                     children: _boardState.mobs.map((mob) {
-    //                       if (mob.isTurn) {
-    //                         return ChangeNotifierProvider.value(
-    //                           value: mob,
-    //                           child: MobHandWidget(),
-    //                         );
-    //                       }
-    //                       return Container();
-    //                     }).toList(),
-    //                   );
-    //                 },
-    //               ),
-    //               Row(
-    //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                 children: [
-    //                   Consumer<BoardState>(
-    //                     builder: (context, boardState, child) {
-    //                       return HealthBar(
-    //                         name: boardState.player.isTurn
-    //                             ? "*${boardState.player.name}"
-    //                             : boardState.player.name,
-    //                         health: boardState.player.health,
-    //                         maxHealth: 10,
-    //                         color: Colors.green,
-    //                       );
-    //                     },
-    //                   ),
-    //                   Expanded(
-    //                     child: SingleChildScrollView(
-    //                       child: Column(
-    //                         children:
-    //                             _boardState.mobs.asMap().entries.map((entry) {
-    //                           Mob mob = entry.value;
-    //                           return ValueListenableBuilder<Mob?>(
-    //                             valueListenable: _selectedMob,
-    //                             builder: (context, selectedMob, child) {
-    //                               return GestureDetector(
-    //                                 onTap: () {
-    //                                   if (_boardState.player.isTurn) {
-    //                                     _selectedMob.value =
-    //                                         selectedMob == mob ? null : mob;
-    //                                     if (_selectedMob.value != null) {
-    //                                       _boardState.applyDamageToSelectedMob(
-    //                                           _selectedMob.value);
-    //                                     }
-    //                                   }
-    //                                 },
-    //                                 child: Consumer<BoardState>(
-    //                                   builder: (context, boardState, child) {
-    //                                     return HealthBar(
-    //                                       name: mob.isTurn
-    //                                           ? "*${mob.name}"
-    //                                           : mob.name,
-    //                                       health: mob.health,
-    //                                       maxHealth: 3,
-    //                                       color: selectedMob == mob
-    //                                           ? Colors.green
-    //                                           : Colors.red,
-    //                                     );
-    //                                   },
-    //                                 ),
-    //                               );
-    //                             },
-    //                           );
-    //                         }).toList(),
-    //                       ),
-    //                     ),
-    //                   ),
-    //                 ],
-    //               ),
-    //               Expanded(
-    //                 flex: 6, // 60% of the screen height
-    //                 child: BoardWidget(),
-    //               ),
-    //               const SizedBox(height: 10),
-    //               const SizedBox(height: 20),
-    //               Consumer<BoardState>(
-    //                 builder: (context, boardState, child) {
-    //                   return StaminaWidget();
-    //                 },
-    //               ),
-    //               const SizedBox(height: 10),
-    //               const EndTurnButton(),
-    //               const SizedBox(height: 10),
-    //               const PlayerHandWidget(),
-    //             ],
-    //           ),
-    //           SizedBox.expand(
-    //             child: Visibility(
-    //               visible: _duringCelebration,
-    //               child: IgnorePointer(
-    //                 child: Confetti(
-    //                   isStopped: !_duringCelebration,
-    //                 ),
-    //               ),
-    //             ),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 
   @override
@@ -361,6 +237,14 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
 
   Future<void> _playerWon() async {
     _log.info('Player won');
+    final playerProgress = context.read<PlayerProgress>();
+    playerProgress.setLevelReached(widget.levelNumber.number);
+
+    final player = _boardState.player;
+    player.increaseMaxHealth();
+    player.increaseMaxStamina();
+    player.resetStamina();
+    // player.stamina.stamina = player.stamina.maxStamina;
 
     // TODO: replace with some meaningful score for the card game
     final score = Score(1, 1, DateTime.now().difference(_startOfPlay));

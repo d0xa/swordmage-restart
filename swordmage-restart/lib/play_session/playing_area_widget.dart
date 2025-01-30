@@ -7,6 +7,7 @@ import 'package:SwordMageRestart/game_internals/player.dart';
 // import 'package:SwordMageRestart/game_internals/player.dart';
 import 'package:SwordMageRestart/game_internals/playing_card_drag_data.dart';
 import 'package:SwordMageRestart/game_internals/stamina.dart';
+import 'package:SwordMageRestart/play_session/ghost_stamina_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -70,11 +71,12 @@ class _PlayingAreaWidgetState extends State<PlayingAreaWidget> {
     final card = details.data.card;
 
     if (widget.isPlayerArea && holder is Player) {
-      // final stamina = context.read<Stamina>();
-      if (holder.stamina.stamina >= card.value) {
+      final ghostStamina = context.read<GhostStamina>();
+      if (holder.stamina >= card.value) {
         widget.area.acceptCard(card);
         holder.removeCard(card);
-        holder.stamina.decrease(card.value);
+        holder.decreaseStamina(card.value);
+        ghostStamina.reset(holder.stamina);
       } else {
         _showInsufficientStaminaMessage();
       }
@@ -97,6 +99,9 @@ class _PlayingAreaWidgetState extends State<PlayingAreaWidget> {
   }
 
   void _onDragLeave(PlayingCardDragData? data) {
+    final player = context.read<Player>();
+    final ghostStamina = context.read<GhostStamina>();
+    ghostStamina.reset(player.stamina);
     setState(() => isHighlighted = false);
   }
 
@@ -105,8 +110,9 @@ class _PlayingAreaWidgetState extends State<PlayingAreaWidget> {
     final card = details.data.card;
 
     if (widget.isPlayerArea && holder is Player) {
-      final stamina = context.read<Stamina>();
-      if (holder.isTurn && stamina.stamina >= card.value) {
+      final ghostStamina = context.read<GhostStamina>();
+      if (holder.isTurn && holder.stamina >= card.value) {
+        ghostStamina.decrease(card.value);
         setState(() => isHighlighted = true);
         return true;
       }

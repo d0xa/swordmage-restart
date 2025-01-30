@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:SwordMageRestart/game_internals/player.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ class MainMenuScreen extends StatelessWidget {
     final palette = context.watch<Palette>();
     final settingsController = context.watch<SettingsController>();
     final audioController = context.watch<AudioController>();
+    final player = context.watch<Player>();
 
     return Scaffold(
       backgroundColor: palette.backgroundMain,
@@ -45,7 +47,7 @@ class MainMenuScreen extends StatelessWidget {
             MyButton(
               onPressed: () {
                 audioController.playSfx(SfxType.buttonTap);
-                GoRouter.of(context).go('/play');
+                GoRouter.of(context).go('/play', extra: player);
               },
               child: const Text('Play'),
             ),

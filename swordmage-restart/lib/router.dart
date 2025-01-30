@@ -2,6 +2,9 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:SwordMageRestart/game_internals/levels/game_levels.dart';
+import 'package:SwordMageRestart/game_internals/levels/level_selector.dart';
+import 'package:SwordMageRestart/game_internals/player.dart';
 import 'package:SwordMageRestart/lose_game/lose_game_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
@@ -28,11 +31,29 @@ final router = GoRouter(
           pageBuilder: (context, state) => buildMyTransition<void>(
             key: const ValueKey('play'),
             color: context.watch<Palette>().backgroundPlaySession,
-            child: const PlaySessionScreen(
-              key: Key('level selection'),
-            ),
+            child: const LevelSelector(key: Key('level selection')),
           ),
           routes: [
+            GoRoute(
+              path: 'session/:levelNumber',
+              pageBuilder: (context, state) {
+                final levelNumber =
+                    int.parse(state.pathParameters['levelNumber']!);
+                final level = gameLevels
+                    .firstWhere((level) => level.number == levelNumber);
+                final player = state.extra as Player;
+
+                return buildMyTransition<void>(
+                  key: ValueKey('session-$levelNumber'),
+                  color: context.watch<Palette>().backgroundPlaySession,
+                  child: PlaySessionScreen(
+                    player: player,
+                    levelNumber: level,
+                    key: Key('play session $levelNumber'),
+                  ),
+                );
+              },
+            ),
             GoRoute(
               path: 'won',
               redirect: (context, state) {

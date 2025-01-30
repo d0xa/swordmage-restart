@@ -4,6 +4,7 @@
 
 import 'dart:math';
 
+import 'package:SwordMageRestart/game_internals/levels/game_levels.dart';
 import 'package:SwordMageRestart/game_internals/mob.dart';
 import 'package:SwordMageRestart/game_internals/monsters.dart';
 import 'package:SwordMageRestart/game_internals/playing_card.dart';
@@ -18,56 +19,25 @@ import 'playing_area.dart';
 
 class BoardState extends ChangeNotifier {
   final VoidCallback onWin;
+  final GameLevel level;
 
   final PlayingArea areaOne = PlayingArea();
 
   final PlayingArea areaTwo = PlayingArea();
 
-  final List<Mob> mobs = Monsters.generateMobs(3);
+  late final List<Mob> mobs;
 
-  // final Player player = Player(health: 100, speed: 10, initialStamina: 50, name: '');
-
-  final Player player = Player(
-      name: 'Chacho', health: 6, maxHealth: 6, speed: 10, initialStamina: 4);
-
-  // final List<Mob> mobs = List.generate(
-  //     3,
-  //     (index) => Mob(
-  //         name: 'Goblin ${index + 1}',
-  //         health: 3,
-  //         speed: 5,
-  //         initialStamina: 3,
-  //         mobType: 'Goblin'));
-
-  // void _initializeMobs() {
-  //   // Example: create initial mobs (do this ONCE)
-  //   mobs.add(Mob(
-  //       health: 3,
-  //       maxHealth: 3,
-  //       speed: 1,
-  //       initialStamina: 3,
-  //       maxStamina: 3,
-  //       mobType: "Goblin",
-  //       name: "Goblin 1"));
-  //   mobs.add(Mob(
-  //       health: 4,
-  //       maxHealth: 4,
-  //       speed: 1,
-  //       initialStamina: 4,
-  //       maxStamina: 4,
-  //       mobType: "Orc",
-  //       name: "Orc 1"));
-  //   // ... add more mobs
-  // }
+  // final Player player = Player(
+  //     name: 'Chacho', health: 6, maxHealth: 6, speed: 10, initialStamina: 4);
+  final Player player;
 
   List<dynamic> allEntities = [];
   int currentTurnIndex = 0;
 
-  BoardState({required this.onWin}) {
-    // _initializeMobs();
+  BoardState({required this.level, required this.player, required this.onWin}) {
+    mobs = Monsters.generateMobs(level.number);
     player.addListener(_handlePlayerChange);
     allEntities = [player, ...mobs];
-    // allEntities.sort((a, b) => b.speed.compareTo(a.speed));
     allEntities.sort((a, b) {
       final aSpeed = a is Player ? a.speed : (a as Mob).speed;
       final bSpeed = b is Player ? b.speed : (b as Mob).speed;
@@ -75,7 +45,6 @@ class BoardState extends ChangeNotifier {
     });
     _setTurnForCurrentEntity();
   }
-
   List<PlayingArea> get areas => [areaOne, areaTwo];
 
   @override
@@ -161,7 +130,7 @@ class BoardState extends ChangeNotifier {
   }
 
   void _handlePlayerTurnEnd(Player player) {
-    player.stamina.increase(2);
+    player.increaseStamina(2);
     final cardsUsed = Player.maxCards - player.hand.length;
     for (int i = 0; i < cardsUsed; i++) {
       player.drawCard(PlayingCard.random());
