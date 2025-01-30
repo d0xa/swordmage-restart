@@ -5,6 +5,7 @@
 import 'dart:math';
 
 import 'package:SwordMageRestart/game_internals/mob.dart';
+import 'package:SwordMageRestart/game_internals/monsters.dart';
 import 'package:SwordMageRestart/game_internals/playing_card.dart';
 import 'package:SwordMageRestart/game_internals/score.dart';
 import 'package:SwordMageRestart/play_session/turn_change_dialog.dart';
@@ -22,10 +23,12 @@ class BoardState extends ChangeNotifier {
 
   final PlayingArea areaTwo = PlayingArea();
 
+  final List<Mob> mobs = Monsters.generateMobs(3);
+
   // final Player player = Player(health: 100, speed: 10, initialStamina: 50, name: '');
 
-  final Player player =
-      Player(name: 'Chacho', health: 2, speed: 10, initialStamina: 10);
+  final Player player = Player(
+      name: 'Chacho', health: 6, maxHealth: 6, speed: 10, initialStamina: 4);
 
   // final List<Mob> mobs = List.generate(
   //     3,
@@ -36,34 +39,32 @@ class BoardState extends ChangeNotifier {
   //         initialStamina: 3,
   //         mobType: 'Goblin'));
 
-  final List<Mob> mobs = []; // Initialize an empty list
-
-  void _initializeMobs() {
-    // Example: create initial mobs (do this ONCE)
-    mobs.add(Mob(
-        health: 3,
-        maxHealth: 3,
-        speed: 1,
-        initialStamina: 3,
-        maxStamina: 3,
-        mobType: "Goblin",
-        name: "Goblin 1"));
-    mobs.add(Mob(
-        health: 4,
-        maxHealth: 4,
-        speed: 1,
-        initialStamina: 4,
-        maxStamina: 4,
-        mobType: "Orc",
-        name: "Orc 1"));
-    // ... add more mobs
-  }
+  // void _initializeMobs() {
+  //   // Example: create initial mobs (do this ONCE)
+  //   mobs.add(Mob(
+  //       health: 3,
+  //       maxHealth: 3,
+  //       speed: 1,
+  //       initialStamina: 3,
+  //       maxStamina: 3,
+  //       mobType: "Goblin",
+  //       name: "Goblin 1"));
+  //   mobs.add(Mob(
+  //       health: 4,
+  //       maxHealth: 4,
+  //       speed: 1,
+  //       initialStamina: 4,
+  //       maxStamina: 4,
+  //       mobType: "Orc",
+  //       name: "Orc 1"));
+  //   // ... add more mobs
+  // }
 
   List<dynamic> allEntities = [];
   int currentTurnIndex = 0;
 
   BoardState({required this.onWin}) {
-    _initializeMobs();
+    // _initializeMobs();
     player.addListener(_handlePlayerChange);
     allEntities = [player, ...mobs];
     // allEntities.sort((a, b) => b.speed.compareTo(a.speed));

@@ -72,6 +72,14 @@ class SettingsScreen extends StatelessWidget {
                 );
               },
             ),
+            _SettingsLine(
+              'Restart',
+              const Icon(Icons.refresh),
+              onSelected: () {
+                // Restart the game by popping all routes and pushing the initial route
+                GoRouter.of(context).go('/');
+              },
+            ),
             _gap,
           ],
         ),

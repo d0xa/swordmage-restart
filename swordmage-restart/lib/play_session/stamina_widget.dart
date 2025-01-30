@@ -16,7 +16,7 @@ class StaminaWidget extends StatelessWidget {
         Text('Stamina: ${stamina.stamina}',
             style: TextStyle(color: Colors.orange)),
         LinearProgressIndicator(
-          value: stamina.stamina / 10, // Assuming max stamina is 10
+          value: stamina.stamina / 4, // Assuming max stamina is 10
           backgroundColor: Colors.grey,
           color: Colors.orange,
         ),

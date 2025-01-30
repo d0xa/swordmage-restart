@@ -117,7 +117,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                                 ? "*${boardState.player.name}"
                                 : boardState.player.name,
                             health: boardState.player.health,
-                            maxHealth: 10,
+                            maxHealth: boardState.player.maxHealth,
                             color: Colors.green,
                           );
                         },

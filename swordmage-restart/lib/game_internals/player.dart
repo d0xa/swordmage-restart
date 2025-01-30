@@ -8,12 +8,14 @@ class Player extends ChangeNotifier {
   final Stamina stamina;
   final int speed;
   int health;
+  int maxHealth;
   bool isTurn = false;
   String name;
   // late List<PlayingCard> hand;
   // final List<PlayingCard> hand = [];
   Player({
     required this.health,
+    required this.maxHealth,
     required this.speed,
     required int initialStamina,
     required this.name,
