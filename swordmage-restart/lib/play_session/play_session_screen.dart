@@ -244,6 +244,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     player.increaseMaxHealth();
     player.increaseMaxStamina();
     player.resetStamina();
+    player.health = player.health + 1;
     // player.stamina.stamina = player.stamina.maxStamina;
 
     // TODO: replace with some meaningful score for the card game
