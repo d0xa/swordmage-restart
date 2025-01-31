@@ -1,11 +1,10 @@
-import 'package:SwordMageRestart/game_internals/stamina.dart';
+import 'package:flame/components.dart';
 import 'package:flutter/foundation.dart';
 
 import 'playing_card.dart';
 
-class Player extends ChangeNotifier {
+class Player extends SpriteComponent with ChangeNotifier {
   static const maxCards = 6;
-  // final Stamina stamina;
   int stamina;
   int maxStamina;
   final int speed;
@@ -13,8 +12,7 @@ class Player extends ChangeNotifier {
   int maxHealth;
   bool isTurn = false;
   String name;
-  // late List<PlayingCard> hand;
-  // final List<PlayingCard> hand = [];
+
   Player({
     required this.health,
     required this.maxHealth,

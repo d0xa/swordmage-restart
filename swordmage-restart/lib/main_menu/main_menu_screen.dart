@@ -2,7 +2,9 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:SwordMageRestart/game_internals/flame_game.dart';
 import 'package:SwordMageRestart/game_internals/player.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +46,13 @@ class MainMenuScreen extends StatelessWidget {
         rectangularMenuArea: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 300,
+              child: GameWidget<SwordMageGame>(
+                game: SwordMageGame(),
+              ),
+            ),
             MyButton(
               onPressed: () {
                 audioController.playSfx(SfxType.buttonTap);

@@ -28,9 +28,9 @@ class PlayingCard {
       // CardSuit.hearts,
       1,
       1,
-      // 'assets/images/cards/Slash-1.png',
+      // 'assets/images/cards/Slash-1.png',RR
       // 'swordmage-restart/assets/images/cards/Slash-1.png',
-      'assets/images/cards/Slash-1.png',
+      '../assets/images/cards/Slash-1.png',
     );
   }
 

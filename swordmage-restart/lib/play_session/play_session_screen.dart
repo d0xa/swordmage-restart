@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:SwordMageRestart/game_internals/flame_game.dart';
 import 'package:SwordMageRestart/game_internals/health_bar.dart';
 import 'package:SwordMageRestart/game_internals/levels/game_levels.dart';
 import 'package:SwordMageRestart/game_internals/mob.dart';
@@ -15,6 +16,7 @@ import 'package:SwordMageRestart/play_session/mob_stamina_widget.dart';
 import 'package:SwordMageRestart/play_session/player_hand_widget.dart';
 import 'package:SwordMageRestart/play_session/stamina_widget.dart';
 import 'package:SwordMageRestart/player_progress/player_progress.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart' hide Level;
@@ -102,6 +104,10 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                       ),
                     ),
                   ),
+                  SizedBox(
+                      height: 200,
+                      width: MediaQuery.of(context).size.width,
+                      child: GameWidget(game: SwordMageGame())),
                   Consumer<BoardState>(
                     builder: (context, boardState, child) {
                       return Column(

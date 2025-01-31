@@ -19,6 +19,7 @@ dependencies:
   logging: ^1.2.0
   provider: ^6.1.2
   shared_preferences: ^2.2.3
+  flame: ^1.23.0
 
 dev_dependencies:
   flutter_lints: ^5.0.0
@@ -35,6 +36,7 @@ flutter:
     - assets/music/
     - assets/sfx/
     - assets/images/cards/ # Added for card images.
+    - assets/images/swordsman/
 
   fonts:
     - family: Permanent Marker
