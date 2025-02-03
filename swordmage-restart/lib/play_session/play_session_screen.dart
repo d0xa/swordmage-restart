@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:SwordMageRestart/game_internals/flame_game.dart';
+import 'package:SwordMageRestart/game_internals/playScreen/flame_game.dart';
 import 'package:SwordMageRestart/game_internals/health_bar.dart';
 import 'package:SwordMageRestart/game_internals/levels/game_levels.dart';
 import 'package:SwordMageRestart/game_internals/mob.dart';
@@ -104,6 +104,25 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                       ),
                     ),
                   ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Consumer<BoardState>(
+                      builder: (context, boardState, child) {
+                        return SizedBox(
+                            height: 60,
+                            width: 150,
+                            child: HealthBar(
+                              name: boardState.player.isTurn
+                                  ? "*${boardState.player.name}"
+                                  : boardState.player.name,
+                              health: boardState.player.health,
+                              maxHealth: boardState.player.maxHealth,
+                              color: Colors.green,
+                            ));
+                      },
+                    ),
+                  ),
+
                   SizedBox(
                       height: 200,
                       width: MediaQuery.of(context).size.width,
@@ -126,18 +145,6 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Consumer<BoardState>(
-                        builder: (context, boardState, child) {
-                          return HealthBar(
-                            name: boardState.player.isTurn
-                                ? "*${boardState.player.name}"
-                                : boardState.player.name,
-                            health: boardState.player.health,
-                            maxHealth: boardState.player.maxHealth,
-                            color: Colors.green,
-                          );
-                        },
-                      ),
                       Expanded(
                         child: SingleChildScrollView(
                           child: Column(

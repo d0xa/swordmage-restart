@@ -37,6 +37,7 @@ flutter:
     - assets/sfx/
     - assets/images/cards/ # Added for card images.
     - assets/images/swordsman/
+    - assets/images/goblin/
 
   fonts:
     - family: Permanent Marker

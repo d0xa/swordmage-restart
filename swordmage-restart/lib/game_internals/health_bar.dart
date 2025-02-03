@@ -27,7 +27,7 @@ class HealthBar extends StatelessWidget {
         Stack(
           children: [
             Container(
-              width: 200,
+              width: 150,
               height: 20,
               decoration: BoxDecoration(
                 color: Colors.grey,
@@ -38,7 +38,7 @@ class HealthBar extends StatelessWidget {
               Positioned(
                 left: 0,
                 child: Container(
-                  width: 200 * healthPercentage,
+                  width: 150 * healthPercentage,
                   height: 20,
                   decoration: BoxDecoration(
                     color: healthColor,
