@@ -1,11 +1,13 @@
 import 'package:SwordMageRestart/game_internals/mob.dart';
+import 'package:SwordMageRestart/game_internals/playScreen/game_components/playing_area_component.dart';
 import 'package:SwordMageRestart/game_internals/playScreen/mobs/mob_health_component.dart';
 import 'package:SwordMageRestart/game_internals/playScreen/mobs/name_component.dart';
 import 'package:SwordMageRestart/game_internals/playScreen/mobs/stamina_component.dart';
+// import 'package:SwordMageRestart/game_internals/playing_area.dart';
 import 'package:flame/cache.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
 class MobSprite extends SpriteAnimationComponent {
   bool _isSelected = false;
@@ -16,11 +18,24 @@ class MobSprite extends SpriteAnimationComponent {
   // int health = 2;
   final Mob mob;
   late final HealthBarComponent healthBar;
+  // late final PlayingArea playingArea;
 
   // MobSprite() : super(size: Vector2(64, 64));
   MobSprite({required this.mob}) : super(size: Vector2(75, 75)) {
     anchor = Anchor.centerRight; // Center the sprite
     flipHorizontallyAroundCenter();
+    // playingArea = PlayingArea();
+  }
+  @override
+  void onMount() {
+    super.onMount();
+    // Add playing area below mob
+    final playingAreaComp = PlayingAreaComponent(
+      // area: playingArea,
+      isMobArea: false,
+    )..position = Vector2(30, -10);
+
+    add(playingAreaComp);
   }
 
   @override
@@ -44,6 +59,12 @@ class MobSprite extends SpriteAnimationComponent {
       maxStamina: mob.maxStamina,
     )..position = Vector2(0, 35);
 
+    // Add playing area below mob
+    // final playingAreaComp = PlayingAreaComponent(
+    //   // area: playingArea,
+    //   isMobArea: false,
+    // )..position = Vector2(30, -10);
+
     mobInfo.addAll([
       nameComponent,
       healthBar,
@@ -51,6 +72,7 @@ class MobSprite extends SpriteAnimationComponent {
     ]);
 
     add(mobInfo);
+    // add(playingAreaComp);
     await images.load('goblin/goblin_idle.png');
     await images.load('goblin/goblin_death.png');
 

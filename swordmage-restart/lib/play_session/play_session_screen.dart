@@ -142,66 +142,42 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                       );
                     },
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children:
-                                _boardState.mobs.asMap().entries.map((entry) {
-                              Mob mob = entry.value;
-                              return ValueListenableBuilder<Mob?>(
-                                valueListenable: _selectedMob,
-                                builder: (context, selectedMob, child) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      if (_boardState.player.isTurn) {
-                                        _selectedMob.value =
-                                            selectedMob == mob ? null : mob;
-                                        if (_selectedMob.value != null) {
-                                          _boardState.applyDamageToSelectedMob(
-                                              _selectedMob.value);
-                                        }
-                                      }
-                                    },
-                                    child: Consumer<BoardState>(
-                                      builder: (context, boardState, child) {
-                                        return Column(
-                                          children: [
-                                            HealthBar(
-                                              name: mob.isTurn
-                                                  ? "*${mob.name}"
-                                                  : mob.name,
-                                              health: mob.health,
-                                              maxHealth: mob.maxHealth,
-                                              color: selectedMob == mob
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                            ),
-                                            // ChangeNotifierProvider.value(
-                                            //     value: mob),
-                                            ChangeNotifierProvider.value(
-                                              value: mob,
-                                              child: const MobStaminaBar(),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    flex: 6, // 60% of the screen height
-                    child: BoardWidget(),
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Expanded(
+                  //       child: SingleChildScrollView(
+                  //         child: Column(
+                  //           children:
+                  //               _boardState.mobs.asMap().entries.map((entry) {
+                  //             Mob mob = entry.value;
+                  //             return ValueListenableBuilder<Mob?>(
+                  //               valueListenable: _selectedMob,
+                  //               builder: (context, selectedMob, child) {
+                  //                 return GestureDetector(
+                  //                   onTap: () {
+                  //                     if (_boardState.player.isTurn) {
+                  //                       _selectedMob.value =
+                  //                           selectedMob == mob ? null : mob;
+                  //                       if (_selectedMob.value != null) {
+                  //                         _boardState.applyDamageToSelectedMob(
+                  //                             _selectedMob.value);
+                  //                       }
+                  //                     }
+                  //                   },
+                  //                 );
+                  //               },
+                  //             );
+                  //           }).toList(),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // Expanded(
+                  //   flex: 6, // 60% of the screen height
+                  //   child: BoardWidget(),
+                  // ),
                   const SizedBox(height: 10),
                   const SizedBox(height: 20),
                   Row(

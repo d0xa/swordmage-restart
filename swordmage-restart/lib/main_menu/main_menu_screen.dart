@@ -48,39 +48,39 @@ class MainMenuScreen extends StatelessWidget {
           children: [
             SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: 300,
+              height: MediaQuery.of(context).size.height * 0.8,
               child: GameWidget<SwordMageGame>(
                 game: SwordMageGame(),
               ),
             ),
-            MyButton(
-              onPressed: () {
-                audioController.playSfx(SfxType.buttonTap);
-                GoRouter.of(context).go('/play', extra: player);
-              },
-              child: const Text('Play'),
-            ),
+            // MyButton(
+            //   onPressed: () {
+            //     audioController.playSfx(SfxType.buttonTap);
+            //     GoRouter.of(context).go('/play', extra: player);
+            //   },
+            //   child: const Text('Play'),
+            // ),
+            // _gap,
+            // MyButton(
+            //   onPressed: () => GoRouter.of(context).push('/settings'),
+            //   child: const Text('Settings'),
+            // ),
             _gap,
-            MyButton(
-              onPressed: () => GoRouter.of(context).push('/settings'),
-              child: const Text('Settings'),
-            ),
-            _gap,
-            Padding(
-              padding: const EdgeInsets.only(top: 32),
-              child: ValueListenableBuilder<bool>(
-                valueListenable: settingsController.audioOn,
-                builder: (context, audioOn, child) {
-                  return IconButton(
-                    onPressed: () => settingsController.toggleAudioOn(),
-                    icon: Icon(audioOn ? Icons.volume_up : Icons.volume_off),
-                  );
-                },
-              ),
-            ),
-            _gap,
-            const Text('Created by Chacho'),
-            _gap,
+            // Padding(
+            //   padding: const EdgeInsets.only(top: 32),
+            //   child: ValueListenableBuilder<bool>(
+            //     valueListenable: settingsController.audioOn,
+            //     builder: (context, audioOn, child) {
+            //       return IconButton(
+            //         onPressed: () => settingsController.toggleAudioOn(),
+            //         icon: Icon(audioOn ? Icons.volume_up : Icons.volume_off),
+            //       );
+            //     },
+            //   ),
+            // ),
+            // _gap,
+            // const Text('Created by Chacho'),
+            // _gap,
           ],
         ),
       ),
