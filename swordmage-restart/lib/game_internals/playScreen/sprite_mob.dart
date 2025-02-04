@@ -23,23 +23,36 @@ class MobSprite extends SpriteAnimationComponent {
   // MobSprite() : super(size: Vector2(64, 64));
   MobSprite({required this.mob}) : super(size: Vector2(75, 75)) {
     anchor = Anchor.centerRight; // Center the sprite
-    flipHorizontallyAroundCenter();
+
     // playingArea = PlayingArea();
   }
   @override
   void onMount() {
     super.onMount();
-    // Add playing area below mob
+
+    // Determine desired offset
+    const desiredXOffset = 60.0;
+    const desiredYOffset = 0.0;
+    // If mob is flipped, adjust X position but don't mirror PlayingArea
+    // final effectiveXOffset = (scale.x < 0) ? -desiredXOffset : desiredXOffset;
+
     final playingAreaComp = PlayingAreaComponent(
-      // area: playingArea,
       isMobArea: false,
-    )..position = Vector2(30, -10);
+    )
+      ..scale.x = -1
+      // ..scale = Vector2(1, 1)
+      ..position = Vector2(desiredXOffset, desiredYOffset);
+    // ..scale = Vector2(1, 1); // Force normal scale
 
     add(playingAreaComp);
   }
 
   @override
-  Future<void> onLoad() async {}
+  Future<void> onLoad() async {
+    // animation = idleAnimation;
+    scale.x = -1; // Mirror the sprite horizontally
+    // playing = true;
+  }
 
   Future<void> loadAnimations(Images images) async {
     // await onLoad();

@@ -1,14 +1,38 @@
 import 'package:flame/components.dart';
 
 class PositionUtils {
-  static Vector2 localToGlobal(
-      Vector2 localPosition, PositionComponent component) {
-    return component.position + localPosition;
-  }
-
   static Vector2 globalToLocal(
       Vector2 globalPosition, PositionComponent component) {
-    return globalPosition - component.position;
+    // Start with the global position
+    Vector2 localPosition = globalPosition.clone();
+
+    // Traverse up the parent hierarchy to adjust for each parent's position
+    PositionComponent? current = component;
+    while (current != null) {
+      localPosition -= current.position;
+      current = current.parent is PositionComponent
+          ? current.parent as PositionComponent
+          : null;
+    }
+
+    return localPosition;
+  }
+
+  static Vector2 localToGlobal(
+      Vector2 localPosition, PositionComponent component) {
+    // Start with the local position
+    Vector2 globalPosition = localPosition.clone();
+
+    // Traverse up the parent hierarchy to adjust for each parent's position
+    PositionComponent? current = component;
+    while (current != null) {
+      globalPosition += current.position;
+      current = current.parent is PositionComponent
+          ? current.parent as PositionComponent
+          : null;
+    }
+
+    return globalPosition;
   }
 
   static Vector2 convertPosition(Vector2 position, PositionComponent source) {

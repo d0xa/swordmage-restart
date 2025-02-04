@@ -20,6 +20,9 @@ class SwordMageGame extends FlameGame with TapDetector, DragCallbacks {
   MobSprite? selectedMob;
   bool isPlayerTurn = true;
   late final BoardState boardState;
+  SpriteComponent? draggedCard; // Declare draggedCard
+  Vector2? originalCardPosition; // Declare originalCardPosition
+  bool isHighlighted = false; // Declare isHighlighted
 
   @override
   Future<void> onLoad() async {
@@ -74,59 +77,9 @@ class SwordMageGame extends FlameGame with TapDetector, DragCallbacks {
     }
     final handComponent = PlayerHandComponent(
       boardState: boardState,
-      position: Vector2(-10, size.y - 50),
-    );
+    )..position = Vector2(-10, size.y - 50);
     add(handComponent);
   }
-
-  @override
-  void onDragUpdate(DragUpdateEvent event) {
-    final handComponent = children.whereType<PlayerHandComponent>().first;
-    if (handComponent.selectedCardIndex != null) {
-      final cardComponent = handComponent.children
-          .elementAt(handComponent.selectedCardIndex!) as SpriteComponent;
-      cardComponent.position += event.delta;
-    }
-  }
-
-  // @override
-  // void onDragEnd(DragEndEvent event) {
-  //   super.onDragEnd(event);
-  //   final handComponent = children.whereType<PlayerHandComponent>().first;
-  //   if (handComponent.selectedCardIndex == null) return;
-
-  //   final cardComponent = handComponent.children
-  //       .elementAt(handComponent.selectedCardIndex!) as SpriteComponent;
-
-  //   final cardWorldPosition =
-  //       PositionUtils.localToGlobal(cardComponent.position, handComponent);
-
-  //   for (final mob in mobs) {
-  //     final playingArea = mob.children.whereType<PlayingAreaComponent>().first;
-  //     print(playingArea);
-
-  //     if (playingArea.parent is PositionComponent) {
-  //       final areaWorldPosition = PositionUtils.localToGlobal(
-  //           playingArea.position, playingArea.parent! as PositionComponent);
-  //       final areaWorldRect = Rect.fromLTWH(areaWorldPosition.x,
-  //           areaWorldPosition.y, playingArea.size.x, playingArea.size.y);
-
-  //       if (areaWorldRect.contains(cardWorldPosition.toOffset())) {
-  //         playingArea.acceptCard(cardComponent);
-  //         handComponent.remove(cardComponent);
-  //         handComponent.originalPositions
-  //             .removeAt(handComponent.selectedCardIndex!);
-  //         handComponent.selectedCardIndex = null;
-  //         return; // Important: Exit the loop after accepting the card
-  //       }
-  //     }
-  //   }
-
-  //   // Reset card position if not accepted.
-  //   cardComponent.position =
-  //       handComponent.originalPositions[handComponent.selectedCardIndex!];
-  //   handComponent.selectedCardIndex = null;
-  // }
 
   @override
   void onTapDown(TapDownInfo info) {
@@ -137,7 +90,8 @@ class SwordMageGame extends FlameGame with TapDetector, DragCallbacks {
     // Check if a mob was tapped
     for (final mob in mobs) {
       if (mob.containsPoint(touchPoint)) {
-        print('Mob hit!');
+        // print('Mob hit!');
+        // print(touchPoint);
 
         // Deselect previous mob
         selectedMob?.isSelected = false;
@@ -148,7 +102,6 @@ class SwordMageGame extends FlameGame with TapDetector, DragCallbacks {
 
         // Play slash animation
         player.playSlash(mob.position).then((_) {
-          // boardState.applyDamageToSelectedMob(mob);
           mob.isSelected = false;
           selectedMob = null;
           isPlayerTurn = true;
@@ -156,5 +109,115 @@ class SwordMageGame extends FlameGame with TapDetector, DragCallbacks {
         break;
       }
     }
+  }
+
+  SpriteComponent? _getCardAtPosition(Vector2 position) {
+    final handComponent = children.whereType<PlayerHandComponent>().first;
+    for (final child in handComponent.children) {
+      if (child is SpriteComponent &&
+          child.toRect().contains(position.toOffset())) {
+        return child;
+      }
+    }
+    return null;
+  }
+
+  @override
+  bool onDragStart(DragStartEvent event) {
+    super.onDragStart(event);
+    draggedCard = _getCardAtPosition(event.localPosition);
+
+    if (draggedCard != null) {
+      originalCardPosition = draggedCard!.position.clone();
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  void onDragUpdate(DragUpdateEvent event) {
+    super.onDragUpdate(event);
+    if (draggedCard != null) {
+      draggedCard!.position += event.delta;
+    }
+  }
+
+  void acceptCard(
+    SpriteComponent cardComponent,
+    PlayingAreaComponent playingArea,
+    PlayerHandComponent handComponent,
+  ) {
+    // This is a safe check to prevent adding the same card multiple times.
+    if (!playingArea.children.contains(cardComponent)) {
+      cardComponent.removeFromParent();
+      playingArea.acceptCard(cardComponent);
+    } else {
+      print("Card was already in the playing area, skipping add.");
+    }
+  }
+
+  @override
+  void onDragEnd(DragEndEvent event) {
+    super.onDragEnd(event);
+    isHighlighted = false;
+
+    if (draggedCard != null) {
+      // Convert card position to global coordinates
+      final cardGlobalPosition = PositionUtils.localToGlobal(
+          draggedCard!.position, draggedCard!.parent! as PositionComponent);
+      bool cardAccepted = false;
+      for (final mob in mobs) {
+        var playingArea = mob.children.whereType<PlayingAreaComponent>().first;
+        final mobPosition = mob.position;
+        final playingAreaRect = Rect.fromLTWH(
+          mobPosition.x,
+          mobPosition.y,
+          playingArea.size.x,
+          playingArea.size.y,
+        );
+
+        if (isWithinRange(cardGlobalPosition, playingAreaRect, 25)) {
+          print("Card accepted in ${mob.name}'s playing area");
+
+          if (!cardAccepted) {
+            draggedCard!.removeFromParent();
+            playingArea.acceptCard(draggedCard!);
+            cardAccepted = true;
+            break;
+          }
+        }
+      }
+
+      final handComponent = children.whereType<PlayerHandComponent>().first;
+      if (!cardAccepted && originalCardPosition != null) {
+        draggedCard!.position = originalCardPosition!;
+        handComponent.selectedCardIndex = null;
+      }
+      draggedCard = null;
+      originalCardPosition = null;
+    }
+  }
+
+  bool isWithinRange(
+      Vector2 cardGlobalPosition, Rect playingAreaBounds, double range) {
+    final cardX = cardGlobalPosition.x;
+    final cardY = cardGlobalPosition.y;
+
+    final areaLeft = playingAreaBounds.left;
+    final areaTop = playingAreaBounds.top;
+    final areaRight = playingAreaBounds.right;
+    final areaBottom = playingAreaBounds.bottom;
+
+    // Calculate the extended bounds based on the range.
+    final extendedLeft = areaLeft - range * 2;
+    final extendedTop = areaTop - range;
+    final extendedRight = areaRight + range;
+    final extendedBottom = areaBottom - range;
+
+    // Efficiently check if the card's position is within the extended bounds.
+    return cardX >= extendedLeft &&
+        cardX <= extendedRight &&
+        cardY >= extendedTop &&
+        cardY <= extendedBottom;
   }
 }

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 // import 'package:SwordMageRestart/game_internals/playScreen/game_components/position_utils.dart'
 //     as PositionUtils;
 
-class PlayingAreaComponent extends PositionComponent with DragCallbacks {
+class PlayingAreaComponent extends PositionComponent {
   final bool isMobArea;
   bool isHighlighted = false;
   static const double cardOffset = 10.0;
@@ -20,8 +20,17 @@ class PlayingAreaComponent extends PositionComponent with DragCallbacks {
     required this.isMobArea,
   }) : super(
           size: Vector2(110, 75),
-          anchor: Anchor.topCenter,
+          // anchor: Anchor.topCenter,
         );
+  @override
+  Rect toRect() {
+    return Rect.fromLTWH(
+      0, // Local X
+      0, // Local Y
+      size.x, // Width
+      size.y, // Height
+    );
+  }
 
   SpriteComponent? _getCardAtPosition(Vector2 position) {
     for (final child in children) {
@@ -34,19 +43,27 @@ class PlayingAreaComponent extends PositionComponent with DragCallbacks {
   }
 
   void acceptCard(SpriteComponent cardComponent) {
-    print("accepted card!");
+    // print("Children before accept: ${children.length}");
+
+    // Remove the card from its previous parent
+    cardComponent.removeFromParent();
+
+    // Calculate correct position based on current cards
+    final slotIndex = children.length;
     cardComponent.position = Vector2(
-      size.x / 3 - cardComponent.size.x / 3,
-      size.y / 3 - cardComponent.size.y / 3,
-    );
+        size.x / 2 - cardComponent.size.x / 2 + (slotIndex * cardOffset),
+        size.y / 2 - cardComponent.size.y / 2);
+
     add(cardComponent);
-    // print(cardComponent);
-    // print("children count: ${children.length}");
+    print("Card added to slot: $slotIndex");
+    print("Children after accept: ${children.length}");
+    print("Card's current parent: ${cardComponent.parent}");
   }
 
   @override
   void render(Canvas canvas) {
     final rect = size.toRect();
+
     canvas.drawRect(
       rect,
       Paint()
@@ -54,95 +71,11 @@ class PlayingAreaComponent extends PositionComponent with DragCallbacks {
             ? Colors.green.withOpacity(0.3)
             : Colors.blue.withOpacity(0.3),
     );
-
-    for (var i = 0; i < children.length; i++) {
+    // print(children);
+    // print(children.length);
+    for (var i = 0; i < children.length - 5; i++) {
       final cardComponent = children.elementAt(i) as SpriteComponent;
-      canvas.save();
-      canvas.translate(i * cardOffset, i * cardOffset);
       cardComponent.render(canvas);
-      canvas.restore();
     }
-  }
-
-  // @override
-  // void onMount() {
-  //   super.onMount();
-  //   size = Vector2(110, 75); // or whatever your size is
-  // }
-
-  @override
-  bool onDragStart(DragStartEvent event) {
-    super.onDragStart(event);
-    isHighlighted = true;
-    draggedCard = _getCardAtPosition(event.localPosition);
-
-    if (draggedCard != null) {
-      originalCardPosition = draggedCard!.position.clone();
-      return true;
-    }
-    return false;
-  }
-
-  @override
-  void onDragUpdate(DragUpdateEvent event) {
-    super.onDragUpdate(event);
-    if (draggedCard != null) {
-      draggedCard!.position += event.delta;
-    }
-  }
-
-  // @override
-  // void onDragEnd(DragEndEvent event) {
-  //   super.onDragEnd(event);
-  //   isHighlighted = false;
-
-  //   if (draggedCard != null && draggedCard!.parent is PositionComponent) {
-  //     // 1. Get card's global position
-  //     final cardGlobalPosition = PositionUtils.localToGlobal(
-  //         draggedCard!.position, draggedCard!.parent! as PositionComponent);
-
-  //     // 2. Convert card's global position to playing area's local position
-  //     final cardPositionInPlayingArea =
-  //         PositionUtils.globalToLocal(cardGlobalPosition, this);
-
-  //     // 3. Use toRect() directly (now in the correct coordinate space)
-  //     if (toRect()
-  //         .toOffset()
-  //         .toRect()
-  //         .contains(cardPositionInPlayingArea.toOffset())) {
-  //       acceptCard(draggedCard!);
-  //     } else if (originalCardPosition != null) {
-  //       draggedCard!.position = originalCardPosition!;
-  //     }
-  //   }
-  //   draggedCard = null;
-  //   originalCardPosition = null;
-  // }
-  @override
-  void onDragEnd(DragEndEvent event) {
-    super.onDragEnd(event);
-    isHighlighted = false;
-
-    if (draggedCard != null && draggedCard!.parent is PositionComponent) {
-      // 1. Get card's global position
-      final cardGlobalPosition = PositionUtils.localToGlobal(
-          draggedCard!.position, draggedCard!.parent! as PositionComponent);
-
-      // 2. Convert card's global position to playing area's local coordinate space
-      final cardPositionInPlayingArea =
-          PositionUtils.globalToLocal(cardGlobalPosition, this);
-
-      // 3. Create a local rect for the playing area
-      final playingAreaRect = Rect.fromLTWH(0, 0, size.x, size.y);
-
-      // 4. Check if the card falls within the local rect of the PlayingArea
-      if (playingAreaRect.contains(cardPositionInPlayingArea.toOffset())) {
-        acceptCard(draggedCard!);
-      } else if (originalCardPosition != null) {
-        draggedCard!.position = originalCardPosition!;
-      }
-    }
-    draggedCard = null;
-    originalCardPosition = null;
   }
 }
